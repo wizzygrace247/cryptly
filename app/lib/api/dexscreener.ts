@@ -7,7 +7,7 @@ const CHAIN_MAP: Record<Chain, string> = {
     bsc: "bsc",
     base: "base",
     arbitrum: "arbitrum",
-    okb: "okb",
+     xlayer: "xlayer",
 };
 
 export interface DexScreenerPair {

@@ -1,4 +1,4 @@
-export type Chain = "ethereum" | "solana" | "bsc" | "base" | "arbitrum" | "okb";
+export type Chain = "ethereum" | "solana" | "bsc" | "base" | "arbitrum" | "xlayer"; 
 
 export interface TokenMetrics {
   name: string;
@@ -53,4 +53,16 @@ export interface TimeframeEstimate {
   window: string;       // human readable e.g. "Days to 2 weeks"
   confidence: "low" | "medium" | "high";
   signals: string[];    // what drove this classification
+}
+export interface TokenMetrics {
+  // ... all existing fields
+  pairAddress: string; // add this 
+  
+}
+
+export interface CompareResult {
+  tokenA: TokenMetrics;
+  tokenB: TokenMetrics;
+  winner: "A" | "B" | "tie";
+  verdict: string; // AI streamed text
 }

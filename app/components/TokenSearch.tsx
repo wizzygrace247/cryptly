@@ -9,7 +9,7 @@ const CHAINS: { value: Chain; label: string }[] = [
     { value: "bsc", label: "BSC" },
     { value: "base", label: "Base" },
     { value: "arbitrum", label: "Arbitrum" },
-    { value: "okb", label: "OKB" },
+    { value: "xlayer", label: "X Layer" },
 ];
 
 interface Props {

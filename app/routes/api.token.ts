@@ -28,6 +28,7 @@ export async function action({ request }: { request: Request }) {
             name: dex.name,
             symbol: dex.symbol,
             address: dex.address,
+            pairAddress: dex.pairAddress,
             chain,
             price: dex.price,
             priceChange24h: dex.priceChange24h,

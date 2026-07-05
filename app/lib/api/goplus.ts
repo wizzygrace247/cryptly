@@ -7,7 +7,7 @@ const CHAIN_ID_MAP: Record<Chain, string> = {
     base: "8453",
     arbitrum: "42161",
     solana: "solana", // GoPlus uses "solana" string for Solana
-    okb: "66",
+    xlayer: "196",
 };
 
 export interface GoPlusResult {

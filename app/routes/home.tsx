@@ -1,25 +1,34 @@
 import { useState, useRef } from "react";
+import { GitCompare } from "lucide-react";
 import TokenSearch from "~/components/TokenSearch";
 import RiskGauge from "~/components/RiskGauge";
 import MetricsGrid from "~/components/MetricsGrid";
-import AnalysisReport, { type AnalysisReportHandle } from "~/components/AnalysisReport";
+import AnalysisReport, {
+  type AnalysisReportHandle,
+} from "~/components/AnalysisReport";
 import Watchlist from "~/components/Watchlist";
 import AlertFeed from "~/components/AlertFeed";
 import RiskFlags from "~/components/RiskFlags";
+import TimeframeCard from "~/components/TimeframeCard";
+import PriceChart from "~/components/PriceChart";
+import CompareMode from "~/components/CompareMode";
 import { fmtPrice } from "~/lib/utils";
 import { useWatchlistAgent } from "~/lib/agent/scheduler";
 import type { TokenMetrics } from "~/types/tokens";
-import TimeframeCard from "~/components/TimeframeCard";
 
 export function meta() {
   return [
     { title: "Cryptly — Crypto Risk Analysis Agent" },
-    { name: "description", content: "AI-powered crypto risk analysis for any token" },
+    {
+      name: "description",
+      content: "AI-powered crypto risk analysis for any token",
+    },
   ];
 }
 
 export default function Home() {
   const [token, setToken] = useState<TokenMetrics | null>(null);
+  const [compareOpen, setCompareOpen] = useState(false);
   const analysisRef = useRef<AnalysisReportHandle | null>(null);
 
   // starts the always-on watchlist polling agent
@@ -27,17 +36,20 @@ export default function Home() {
 
   const handleResult = (t: TokenMetrics) => {
     setToken(t);
+    setCompareOpen(false);
     // auto-trigger AI analysis 300ms after token loads
     setTimeout(() => analysisRef.current?.run(), 300);
   };
 
   return (
     <div className="min-h-screen" style={{ background: "var(--bg-primary)" }}>
-
       {/* navbar */}
       <nav
         className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-30"
-        style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--bg-card)",
+        }}
       >
         {/* logo */}
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -60,6 +72,20 @@ export default function Home() {
 
         {/* right side */}
         <div className="flex items-center gap-3 flex-shrink-0">
+          {token && (
+            <button
+              onClick={() => setCompareOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--bg-card)",
+                color: "var(--text-primary)",
+              }}
+            >
+              <GitCompare className="w-4 h-4" />
+              Compare
+            </button>
+          )}
           <AlertFeed />
           <button
             className="px-4 py-2 rounded-lg text-sm font-medium text-white"
@@ -77,18 +103,18 @@ export default function Home() {
             {/* token header */}
             <div className="flex items-center gap-4">
               <div
-                className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-                style={{
-                  background: token.logoUrl
-                    ? "transparent"
-                    : "var(--accent)",
-                }}
+                className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 overflow-hidden"
+                style={{ background: "var(--accent)" }}
               >
                 {token.logoUrl ? (
                   <img
                     src={token.logoUrl}
                     alt={token.symbol}
-                    className="w-14 h-14 rounded-full object-cover"
+                    className="w-14 h-14 object-cover"
+                    onError={(e) => {
+                      // fallback to initial if image fails
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
                   />
                 ) : (
                   token.symbol.charAt(0)
@@ -147,21 +173,26 @@ export default function Home() {
               </div>
             </div>
 
-            {/* instant risk flags — no AI needed, fires from data */}
+            {/* instant risk flags */}
             <RiskFlags token={token} />
-
-            {token.timeframe ? (
-              <div className="mt-4">
-                <TimeframeCard timeframe={token.timeframe} />
-              </div>
-            ) : null}
 
             {/* main grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <RiskGauge score={token.riskScore} label={token.riskLabel} />
+              {/* left column — gauge + timeframe */}
+              <div className="space-y-6">
+                <RiskGauge
+                  score={token.riskScore}
+                  label={token.riskLabel}
+                />
+                {token.timeframe && (
+                  <TimeframeCard timeframe={token.timeframe} />
+                )}
+              </div>
+
+              {/* right column — chart, metrics, AI */}
               <div className="lg:col-span-2 space-y-4">
+                <PriceChart token={token} />
                 <MetricsGrid token={token} />
-                {/* AI streams here automatically on token load */}
                 <AnalysisReport token={token} ref={analysisRef} />
               </div>
             </div>
@@ -185,8 +216,11 @@ export default function Home() {
               >
                 Analyze any token
               </h2>
-              <p className="text-base" style={{ color: "var(--text-muted)" }}>
-                Enter a contract address or projectID above to get an
+              <p
+                className="text-base"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Enter a contract address or coin ID above to get an
                 AI-powered risk analysis
               </p>
             </div>
@@ -194,11 +228,13 @@ export default function Home() {
             {/* feature pills */}
             <div className="flex flex-wrap justify-center gap-3 mt-2">
               {[
-                " Real-time data",
+                "🔍 Real-time data",
                 " Honeypot detection",
                 " Risk scoring",
                 " AI insights",
                 " Watchlist agent",
+                " Token compare",
+                " Price history",
               ].map((f) => (
                 <span
                   key={f}
@@ -215,34 +251,75 @@ export default function Home() {
             </div>
 
             {/* supported chains */}
-            <div className="flex items-center gap-2 mt-4">
-              <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+            <div className="flex items-center gap-2 mt-4 flex-wrap justify-center">
+              <span
+                className="text-xs"
+                style={{ color: "var(--text-muted)" }}
+              >
                 Supported chains:
               </span>
-              {["Ethereum", "Solana", "BSC", "Base", "Arbitrum", "OKB"].map((c) => (
+              {[
+                "Ethereum",
+                "Solana",
+                "BSC",
+                "Base",
+                "Arbitrum",
+                "X Layer",
+              ].map((c) => (
                 <span
                   key={c}
                   className="text-xs px-3 py-1 rounded-full border"
                   style={{
-                    borderColor: "var(--border)",
-                    color: "var(--text-muted)",
+                    borderColor: c === "X Layer" ? "var(--accent)" : "var(--border)",
+                    color: c === "X Layer" ? "var(--accent)" : "var(--text-muted)",
+                    background: c === "X Layer" ? "var(--accent-glow)" : "transparent",
                   }}
                 >
                   {c}
                 </span>
               ))}
             </div>
+
+            {/* X Layer callout */}
+            <div
+              className="mt-2 px-6 py-3 rounded-xl border text-sm text-center max-w-md"
+              style={{
+                borderColor: "var(--accent)",
+                background: "var(--accent-glow)",
+                color: "var(--text-primary)",
+              }}
+            >
+              Now supporting{" "}
+              <span
+                className="font-semibold"
+                style={{ color: "var(--accent)" }}
+              >
+                X Layer
+              </span>{" "}
+               OKX's EVM Layer 2 with sub-cent fees and 1-second blocks
+            </div>
           </div>
         )}
       </main>
 
+      {/* compare modal */}
+      {compareOpen && token && (
+        <CompareMode
+          tokenA={token}
+          onClose={() => setCompareOpen(false)}
+        />
+      )}
+
       {/* footer */}
       <footer
         className="border-t mt-12 py-6 text-center text-xs"
-        style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--text-muted)",
+        }}
       >
-        Cryptly — AI crypto risk analysis. Not financial advice.
-        Data from DexScreener and GoPlus Security with ai assistance.
+        Cryptly — AI crypto risk analysis agent. Not financial advice. Data
+        from DexScreener, GoPlus Security & GeckoTerminal.
       </footer>
     </div>
   );
