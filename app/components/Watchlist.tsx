@@ -28,15 +28,15 @@ export default function Watchlist({ currentToken }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-6 border"
+      className="mt-8 rounded-2xl border p-6 shadow-sm"
       style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
     >
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <Eye className="w-4 h-4" style={{ color: "var(--accent)" }} />
-          <h3 className="font-semibold text-sm">Watchlist</h3>
+          <h3 className="text-sm font-semibold">Watchlist</h3>
           <span
-            className="text-xs px-2 py-0.5 rounded-full font-medium"
+            className="rounded-full px-2 py-0.5 text-xs font-medium"
             style={{
               background: "var(--accent-glow)",
               color: "var(--accent)",
@@ -48,7 +48,7 @@ export default function Watchlist({ currentToken }: Props) {
 
         <button
           onClick={toggle}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white transition-opacity hover:opacity-80"
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80 sm:w-auto"
           style={{
             background: watching ? "rgba(239,68,68,0.2)" : "var(--accent)",
             color: watching ? "var(--red)" : "white",
@@ -76,7 +76,7 @@ export default function Watchlist({ currentToken }: Props) {
           {items.map((w) => (
             <div
               key={w.address}
-              className="flex items-center justify-between p-3 rounded-xl border"
+              className="flex flex-col gap-3 rounded-xl border p-3 sm:flex-row sm:items-center sm:justify-between"
               style={{
                 borderColor: "var(--border)",
                 background: "var(--bg-primary)",
@@ -84,7 +84,7 @@ export default function Watchlist({ currentToken }: Props) {
             >
               <div className="flex items-center gap-3">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
+                  className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
                   style={{ background: "var(--accent)" }}
                 >
                   {w.symbol.charAt(0)}
@@ -97,7 +97,7 @@ export default function Watchlist({ currentToken }: Props) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center justify-between gap-4 sm:justify-end">
                 <div className="text-right">
                   <p
                     className="text-sm font-bold"
@@ -105,19 +105,16 @@ export default function Watchlist({ currentToken }: Props) {
                   >
                     {w.lastScore}/100
                   </p>
-                  <p
-                    className="text-xs"
-                    style={{ color: "var(--text-muted)" }}
-                  >
+                  <p className="text-xs" style={{ color: "var(--text-muted)" }}>
                     risk score
                   </p>
                 </div>
                 <button
                   onClick={() => remove(w.address)}
-                  className="hover:opacity-70 transition-opacity"
+                  className="transition-opacity hover:opacity-70"
                 >
                   <Trash2
-                    className="w-4 h-4"
+                    className="h-4 w-4"
                     style={{ color: "var(--text-muted)" }}
                   />
                 </button>

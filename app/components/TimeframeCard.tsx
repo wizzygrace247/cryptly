@@ -17,25 +17,16 @@ export default function TimeframeCard({ timeframe }: Props) {
 
   return (
     <div
-      className="rounded-2xl p-6 border"
+      className="rounded-2xl border p-5 shadow-sm"
       style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
     >
-      <div className="flex items-center gap-2 mb-4">
-        <Clock className="w-4 h-4" style={{ color: "var(--accent)" }} />
-        <h3 className="font-semibold text-sm">Expected Timeframe</h3>
-      </div>
-
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-lg font-bold" style={{ color }}>
-            {timeframe.label}
-          </p>
-          <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-            {timeframe.window}
-          </p>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Clock className="w-4 h-4" style={{ color: "var(--accent)" }} />
+          <h3 className="text-sm font-semibold">Expected Timeframe</h3>
         </div>
         <span
-          className="text-xs px-3 py-1 rounded-full font-medium capitalize"
+          className="rounded-full px-2.5 py-1 text-[11px] font-medium capitalize"
           style={{
             background: `${color}22`,
             color,
@@ -45,16 +36,29 @@ export default function TimeframeCard({ timeframe }: Props) {
         </span>
       </div>
 
-      <div className="space-y-1.5 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+      <div className="mb-4">
+        <p className="text-lg font-bold" style={{ color }}>
+          {timeframe.label}
+        </p>
+        <p className="text-sm" style={{ color: "var(--text-muted)" }}>
+          {timeframe.window}
+        </p>
+      </div>
+
+      <div
+        className="space-y-2 rounded-xl border border-dashed p-3"
+        style={{ borderColor: "var(--border)" }}
+      >
         {timeframe.signals.map((s, i) => (
-          <p key={i} className="text-xs flex gap-2" style={{ color: "var(--text-muted)" }}>
-            <span style={{ color }}>•</span> {s}
+          <p key={i} className="flex gap-2 text-xs" style={{ color: "var(--text-muted)" }}>
+            <span style={{ color }}>•</span>
+            <span>{s}</span>
           </p>
         ))}
       </div>
 
       <p
-        className="text-xs mt-4 pt-3 border-t italic"
+        className="mt-4 border-t pt-3 text-xs italic"
         style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
       >
         Based on observable market patterns, not a guarantee. Crypto markets are volatile and unpredictable.

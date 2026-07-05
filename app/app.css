@@ -1,23 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
 }
 
 :root {
-  --bg-primary: #050505;
-  --bg-card: #111111;
-  --bg-card-hover: #1b1b1b;
-  --border: #2a2a2a;
-  --accent: #d4a373;
-  --accent-glow: rgba(212, 163, 115, 0.16);
-  --text-primary: #f5efe6;
-  --text-muted: #9a9287;
-  --green: #7aa97a;
-  --red: #c96b5b;
-  --orange: #d08a3b;
-  --yellow: #d8b46d;
+  --bg-primary: #0a0b0a;
+  --bg-card: #131513;
+  --bg-card-hover: #181b18;
+  --border: #26302b;
+  --border-bright: #3a4a42;
+
+  --accent: #ffb000;
+  --accent-glow: rgba(255, 176, 0, 0.12);
+  --accent-dim: rgba(255, 176, 0, 0.6);
+
+  --text-primary: #e8e6e1;
+  --text-muted: #6b756e;
+
+  --green: #00d66f;
+  --green-glow: rgba(0, 214, 111, 0.12);
+  --red: #ff3b3b;
+  --red-glow: rgba(255, 59, 59, 0.12);
+  --orange: #ff8a3d;
+  --yellow: #ffd600;
 }
 
 html,
@@ -25,17 +32,81 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
+  font-family: var(--font-sans);
+}
+
+/* numbers and data feel like terminal readouts */
+.font-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
+}
+
+/* scan-line sweep — the signature motion */
+@keyframes scan-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.scan-line {
+  position: relative;
+  overflow: hidden;
+}
+
+.scan-line::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-glow) 40%,
+    var(--accent-dim) 50%,
+    var(--accent-glow) 60%,
+    transparent
+  );
+  animation: scan-sweep 1.8s ease-in-out infinite;
+}
+
+/* corner brackets — targeting reticle motif */
+.scan-corners {
+  position: relative;
+}
+.scan-corners::before,
+.scan-corners::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--accent);
+  opacity: 0.5;
+}
+.scan-corners::before {
+  top: -1px;
+  left: -1px;
+  border-top: 2px solid;
+  border-left: 2px solid;
+}
+.scan-corners::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 2px solid;
+  border-right: 2px solid;
 }
