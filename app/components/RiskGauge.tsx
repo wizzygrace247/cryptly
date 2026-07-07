@@ -15,7 +15,6 @@ export default function RiskGauge({ score, label }: Props) {
   return (
     <div
       className="scan-corners p-6 flex flex-col items-center justify-center border h-full"
-      style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
     >
       <h3
         className="text-xs font-medium mb-2 tracking-widest uppercase"

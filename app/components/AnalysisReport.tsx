@@ -35,10 +35,7 @@ const AnalysisReport = forwardRef<AnalysisReportHandle, Props>(
     useImperativeHandle(ref, () => ({ run }));
 
     return (
-      <div
-        className="rounded-2xl p-6 border"
-        style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
-      >
+      <div className="rounded-2xl p-6 border card">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <div

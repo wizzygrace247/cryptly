@@ -36,16 +36,15 @@ function MetricRow({
       style={{ borderColor: "var(--border)" }}
     >
       <p
-        className={`text-sm font-medium text-right ${
-          winnerIsA === true ? "font-bold" : ""
-        }`}
+        className={`text-sm font-medium text-right ${winnerIsA === true ? "font-bold" : ""
+          }`}
         style={{
           color:
             winnerIsA === true
               ? "var(--green)"
               : winnerIsA === false
-              ? "var(--text-muted)"
-              : "var(--text-primary)",
+                ? "var(--text-muted)"
+                : "var(--text-primary)",
         }}
       >
         {valueA}
@@ -58,16 +57,15 @@ function MetricRow({
         {label}
       </p>
       <p
-        className={`text-sm font-medium ${
-          winnerIsA === false ? "font-bold" : ""
-        }`}
+        className={`text-sm font-medium ${winnerIsA === false ? "font-bold" : ""
+          }`}
         style={{
           color:
             winnerIsA === false
               ? "var(--green)"
               : winnerIsA === true
-              ? "var(--text-muted)"
-              : "var(--text-primary)",
+                ? "var(--text-muted)"
+                : "var(--text-primary)",
         }}
       >
         {winnerIsA === false && "✓ "}
@@ -155,14 +153,8 @@ export default function CompareMode({ tokenA, onClose }: Props) {
   const scoreB = tokenB?.riskScore ?? null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4"
-      style={{ background: "rgba(0,0,0,0.7)" }}
-    >
-      <div
-        className="w-full max-w-4xl rounded-2xl border overflow-hidden"
-        style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
-      >
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 px-4" style={{ background: "rgba(0,0,0,0.7)" }}>
+      <div className="w-full max-w-4xl rounded-2xl border overflow-hidden card">
         {/* header */}
         <div
           className="flex items-center justify-between px-6 py-4 border-b"
@@ -471,13 +463,13 @@ export default function CompareMode({ tokenA, onClose }: Props) {
                       background: loadingVerdict
                         ? "var(--orange)"
                         : verdict
-                        ? "var(--green)"
-                        : "var(--text-muted)",
+                          ? "var(--green)"
+                          : "var(--text-muted)",
                       boxShadow: loadingVerdict
                         ? "0 0 6px var(--orange)"
                         : verdict
-                        ? "0 0 6px var(--green)"
-                        : "none",
+                          ? "0 0 6px var(--green)"
+                          : "none",
                     }}
                   />
                   <h3 className="font-semibold text-sm">AI Verdict</h3>

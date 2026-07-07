@@ -80,7 +80,7 @@ export default function PriceChart({ token }: Props) {
   return (
     <div
       className="rounded-2xl p-6 border"
-      style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
+      className="rounded-2xl p-4 border card"
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-sm">Price History</h3>

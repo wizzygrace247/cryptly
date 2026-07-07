@@ -8,4 +8,9 @@ export default [
   route("api/compare", "routes/api.compare.ts"),
   route("api/portfolio", "routes/api.portfolio.ts"),
   route("api/portfolio-analyze", "routes/api.portfolio.analyze.ts"),
+  route("api/wallet", "routes/api.wallet.ts"),
+  route("api/persist", "routes/api.persist.ts"),
+  route("api/agent/run", "routes/api.agent.run.ts"),
+  route("api/debate", "routes/api.debate.ts"),
+  route("api/sentiment", "routes/api.sentiment.ts"),
 ] satisfies RouteConfig;

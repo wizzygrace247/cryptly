@@ -103,3 +103,56 @@ export async function fetchTokenSecurity(
         };
     }
 }
+
+export interface ApprovalRisk {
+  spenderAddress: string;
+  tokenAddress: string;
+  isMaliciousSpender: boolean;
+  approvedAmount: string;
+  riskNote: string;
+}
+
+export async function fetchApprovalSecurity(
+  walletAddress: string,
+  chain: Chain
+): Promise<ApprovalRisk[]> {
+  const chainId = CHAIN_ID_MAP[chain];
+  if (!chainId || chain === "solana") return [];
+
+  const url = `https://api.gopluslabs.io/api/v1/approval_security/${chainId}?addresses=${walletAddress}`;
+
+  try {
+    const res = await fetch(url, {
+      headers: process.env.GOPLUS_API_KEY
+        ? { Authorization: process.env.GOPLUS_API_KEY }
+        : {},
+    });
+
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    // NOTE: verify exact field names against https://docs.gopluslabs.io
+    // before demo — response schema below is best-effort from public docs
+    const approvals = data?.result?.[walletAddress.toLowerCase()] ?? [];
+
+    const risks: ApprovalRisk[] = [];
+    for (const a of approvals) {
+      const isMalicious =
+        a.malicious_address === "1" || a.malicious_behavior?.length > 0;
+      if (!isMalicious) continue;
+
+      risks.push({
+        spenderAddress: a.approved_contract ?? "unknown",
+        tokenAddress: a.token_address ?? "unknown",
+        isMaliciousSpender: true,
+        approvedAmount: a.approved_amount ?? "unlimited",
+        riskNote:
+          a.malicious_behavior?.join(", ") ?? "Flagged as malicious spender",
+      });
+    }
+    return risks;
+  } catch (err) {
+    console.warn("GoPlus approval security fetch failed:", err);
+    return [];
+  }
+}

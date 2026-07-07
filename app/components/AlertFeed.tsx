@@ -9,15 +9,14 @@ export default function AlertFeed() {
 
   const severityColor = (s: AlertItem["severity"]) =>
     s === "danger" ? "var(--red)"
-    : s === "warning" ? "var(--orange)"
-    : "var(--accent)";
+      : s === "warning" ? "var(--orange)"
+        : "var(--accent)";
 
   return (
     <div className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="relative p-2 rounded-lg border"
-        style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
+        className="relative p-2 rounded-lg border card"
       >
         <Bell className="w-5 h-5" style={{ color: "var(--text-muted)" }} />
         {alerts.length > 0 && (
@@ -33,10 +32,7 @@ export default function AlertFeed() {
       {open && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div
-            className="absolute right-0 top-full mt-2 w-80 rounded-xl border z-50 p-3"
-            style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
-          >
+          <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border z-50 p-3 card">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold">Agent Alerts</p>
               {alerts.length > 0 && (

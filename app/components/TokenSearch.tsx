@@ -72,7 +72,6 @@ export default function TokenSearch({ onResult }: Props) {
                             <div className="fixed inset-0 z-40" onClick={() => setShowChains(false)} />
                             <div
                                 className="absolute top-full mt-1 left-0 rounded-lg border z-50 py-1 min-w-36"
-                                style={{ background: "var(--bg-card)", borderColor: "var(--border)" }}
                             >
                                 {CHAINS.map((c) => (
                                     <button

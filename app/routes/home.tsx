@@ -1,21 +1,23 @@
 import { useState, useRef } from "react";
-import { GitCompare, BarChart3, Search } from "lucide-react";
+import { Menu } from "lucide-react";
 import TokenSearch from "~/components/TokenSearch";
 import RiskGauge from "~/components/RiskGauge";
 import MetricsGrid from "~/components/MetricsGrid";
 import AnalysisReport, {
   type AnalysisReportHandle,
 } from "~/components/AnalysisReport";
-import Watchlist from "~/components/Watchlist";
-import AlertFeed from "~/components/AlertFeed";
 import RiskFlags from "~/components/RiskFlags";
 import TimeframeCard from "~/components/TimeframeCard";
 import PriceChart from "~/components/PriceChart";
 import CompareMode from "~/components/CompareMode";
 import PortfolioTracker from "~/components/PortfolioTracker";
+import SidePanel from "~/components/SidePanel";
 import { fmtPrice } from "~/lib/utils";
 import { useWatchlistAgent } from "~/lib/agent/scheduler";
+import { useWatchlistStore } from "~/store/watchlistStore";
+import { useWallet } from "~/lib/wallet/useWallet";
 import type { TokenMetrics } from "~/types/tokens";
+import DebateCouncil from "~/components/DebateCouncil";
 
 export function meta() {
   return [
@@ -27,15 +29,18 @@ export function meta() {
   ];
 }
 
-type Tab = "analyze" | "portfolio";
+type View = "analyze" | "portfolio";
 
 export default function Home() {
-  const [tab, setTab] = useState<Tab>("analyze");
+  const [view, setView] = useState<View>("analyze");
   const [token, setToken] = useState<TokenMetrics | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const analysisRef = useRef<AnalysisReportHandle | null>(null);
 
   useWatchlistAgent();
+  const { alerts } = useWatchlistStore();
+  const { address } = useWallet();
 
   const handleResult = (t: TokenMetrics) => {
     setToken(t);
@@ -44,99 +49,91 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: "var(--bg-primary)" }}>
-      {/* navbar */}
+    <div className="min-h-screen flex flex-col">
+      {/* minimal navbar */}
       <nav
-        className="flex items-center justify-between px-6 py-4 border-b sticky top-0 z-30"
+        className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b sticky top-0 z-30"
         style={{
           borderColor: "var(--border)",
           background: "var(--bg-card)",
         }}
       >
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <button
+          onClick={() => setView("analyze")}
+          className="flex items-center gap-2 flex-shrink-0"
+        >
           <div
-            className="w-8 h-8 rounded-md flex items-center justify-center text-white font-bold text-sm"
-            style={{ background: "var(--accent)" }}
+            className="w-8 h-8 rounded-md flex items-center justify-center font-bold text-sm"
+            style={{ background: "var(--accent)", color: "#0A0B0A" }}
           >
             C
           </div>
           <span
-            className="font-bold text-lg tracking-tight"
+            className="hidden sm:inline font-bold text-lg tracking-tight"
             style={{ color: "var(--text-primary)" }}
           >
             Cryptly
           </span>
-        </div>
+        </button>
 
-        {tab === "analyze" && <TokenSearch onResult={handleResult} />}
+        {view === "analyze" && (
+          <div className="flex-1 min-w-0">
+            <TokenSearch onResult={handleResult} />
+          </div>
+        )}
+        {view === "portfolio" && <div className="flex-1" />}
 
-        <div className="flex items-center gap-3 flex-shrink-0">
-          <div
-            className="flex items-center rounded-md border p-0.5"
+        {/* wallet status indicator + panel trigger */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {address && (
+            <span
+              className="hidden sm:flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border"
+              style={{
+                borderColor: "var(--green)",
+                color: "var(--green)",
+                background: "var(--green-glow)",
+              }}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ background: "var(--green)" }}
+              />
+              {address.slice(0, 6)}...{address.slice(-4)}
+            </span>
+          )}
+
+          <button
+            onClick={() => setPanelOpen(true)}
+            className="relative p-2 rounded-md border"
             style={{
               borderColor: "var(--border)",
               background: "var(--bg-primary)",
             }}
           >
-            <button
-              onClick={() => setTab("analyze")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium transition-colors"
-              style={{
-                background: tab === "analyze" ? "var(--accent)" : "transparent",
-                color: tab === "analyze" ? "#0A0B0A" : "var(--text-muted)",
-              }}
-            >
-              <Search className="w-3.5 h-3.5" />
-              Analyze
-            </button>
-            <button
-              onClick={() => setTab("portfolio")}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm text-sm font-medium transition-colors"
-              style={{
-                background: tab === "portfolio" ? "var(--accent)" : "transparent",
-                color: tab === "portfolio" ? "#0A0B0A" : "var(--text-muted)",
-              }}
-            >
-              <BarChart3 className="w-3.5 h-3.5" />
-              Portfolio
-            </button>
-          </div>
-
-          {tab === "analyze" && token && (
-            <button
-              onClick={() => setCompareOpen(true)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md border text-sm font-medium"
-              style={{
-                borderColor: "var(--border)",
-                background: "var(--bg-card)",
-                color: "var(--text-primary)",
-              }}
-            >
-              <GitCompare className="w-4 h-4" />
-              Compare
-            </button>
-          )}
-
-          <AlertFeed />
-
-          <button
-            className="px-4 py-2 rounded-md text-sm font-medium"
-            style={{ background: "var(--accent)", color: "#0A0B0A" }}
-          >
-            Connect Wallet
+            <Menu
+              className="w-5 h-5"
+              style={{ color: "var(--text-primary)" }}
+            />
+            {alerts.length > 0 && (
+              <span
+                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs font-bold flex items-center justify-center"
+                style={{ background: "var(--red)", color: "white" }}
+              >
+                {alerts.length}
+              </span>
+            )}
           </button>
         </div>
       </nav>
 
-      {/* main content — flex-1 pushes footer down, no overlap possible */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-6">
-        {/* ── ANALYZE TAB ── */}
-        {tab === "analyze" && (
+      {/* main content */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
+        {view === "analyze" && (
           <>
             {token ? (
               <div className="space-y-6">
                 {/* token header */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 flex-wrap">
                   <div
                     className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold flex-shrink-0 overflow-hidden"
                     style={{ background: "var(--accent)" }}
@@ -147,7 +144,8 @@ export default function Home() {
                         alt={token.symbol}
                         className="w-14 h-14 object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = "none";
+                          (e.target as HTMLImageElement).style.display =
+                            "none";
                         }}
                       />
                     ) : (
@@ -155,20 +153,30 @@ export default function Home() {
                     )}
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+                    <h1
+                      className="text-xl sm:text-2xl font-bold"
+                      style={{ color: "var(--text-primary)" }}
+                    >
                       {token.name}{" "}
-                      <span style={{ color: "var(--text-muted)" }}>({token.symbol})</span>
+                      <span style={{ color: "var(--text-muted)" }}>
+                        ({token.symbol})
+                      </span>
                     </h1>
                     <div className="flex items-center gap-3 mt-1 flex-wrap">
-                      <span className="text-xl font-semibold font-data">
+                      <span className="text-lg sm:text-xl font-semibold font-data">
                         {fmtPrice(token.price)}
                       </span>
                       <span
                         className="px-2 py-0.5 rounded text-sm font-semibold font-data"
                         style={{
                           background:
-                            token.priceChange24h >= 0 ? "var(--green-glow)" : "var(--red-glow)",
-                          color: token.priceChange24h >= 0 ? "var(--green)" : "var(--red)",
+                            token.priceChange24h >= 0
+                              ? "var(--green-glow)"
+                              : "var(--red-glow)",
+                          color:
+                            token.priceChange24h >= 0
+                              ? "var(--green)"
+                              : "var(--red)",
                         }}
                       >
                         {token.priceChange24h >= 0 ? "+" : ""}
@@ -176,93 +184,80 @@ export default function Home() {
                       </span>
                       <span
                         className="text-xs px-2 py-0.5 rounded capitalize"
-                        style={{ background: "var(--accent-glow)", color: "var(--accent)" }}
+                        style={{
+                          background: "var(--accent-glow)",
+                          color: "var(--accent)",
+                        }}
                       >
                         {token.chain}
-                      </span>
-                      <span
-                        className="text-xs font-mono px-2 py-0.5 rounded border"
-                        style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
-                      >
-                        {token.address.slice(0, 6)}...{token.address.slice(-4)}
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* instant risk flags */}
                 <RiskFlags token={token} />
 
-                {/* main grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-                  {/* left column — gauge, timeframe, watchlist all stacked with consistent spacing */}
                   <div className="space-y-6">
-                    <RiskGauge score={token.riskScore} label={token.riskLabel} />
-                    {token.timeframe && <TimeframeCard timeframe={token.timeframe} />}
-                    <Watchlist currentToken={token} />
+                    <RiskGauge
+                      score={token.riskScore}
+                      label={token.riskLabel}
+                    />
+                    {token.timeframe && (
+                      <TimeframeCard timeframe={token.timeframe} />
+                    )}
                   </div>
-
-                  {/* right column */}
                   <div className="lg:col-span-2 space-y-4">
                     <PriceChart token={token} />
                     <MetricsGrid token={token} />
                     <AnalysisReport token={token} ref={analysisRef} />
+                    <DebateCouncil token={token} />
                   </div>
                 </div>
               </div>
             ) : (
               /* empty state */
-              <div className="flex flex-col items-center justify-center py-32 gap-5">
+              <div className="flex flex-col items-center justify-center py-24 sm:py-32 gap-5 text-center">
                 <div
-                  className="w-20 h-20 rounded-2xl flex items-center justify-center text-white font-bold text-3xl"
-                  style={{ background: "var(--accent)" }}
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl"
+                  style={{ background: "var(--accent)", color: "#0A0B0A" }}
                 >
                   C
                 </div>
-                <div className="text-center space-y-2">
-                  <h2 className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
-                    Analyze any token
-                  </h2>
-                  <p className="text-base" style={{ color: "var(--text-muted)" }}>
-                    Enter a contract address or coin ID above to get an AI-powered risk analysis
-                  </p>
-                </div>
-                <div className="flex flex-wrap justify-center gap-3 mt-2">
+                <h2
+                  className="text-2xl font-bold"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  Analyze any token
+                </h2>
+                <p
+                  className="text-base max-w-sm"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  Enter a contract address or coin ID above to get an
+                  AI-powered risk analysis
+                </p>
+                <div className="flex items-center gap-2 flex-wrap justify-center">
                   {[
-                    "🔍 Real-time data",
-                    "🛡️ Honeypot detection",
-                    "📊 Risk scoring",
-                    "🤖 AI insights",
-                    "👁️ Watchlist agent",
-                    "⚖️ Token compare",
-                    "📈 Price history",
-                    "💼 Portfolio tracker",
-                  ].map((f) => (
-                    <span
-                      key={f}
-                      className="text-sm px-4 py-2 rounded-full border"
-                      style={{
-                        borderColor: "var(--border)",
-                        color: "var(--text-muted)",
-                        background: "var(--bg-card)",
-                      }}
-                    >
-                      {f}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex items-center gap-2 mt-4 flex-wrap justify-center">
-                  <span className="text-xs" style={{ color: "var(--text-muted)" }}>
-                    Supported chains:
-                  </span>
-                  {["Ethereum", "Solana", "BSC", "Base", "Arbitrum", "X Layer"].map((c) => (
+                    "Ethereum",
+                    "Solana",
+                    "BSC",
+                    "Base",
+                    "Arbitrum",
+                    "X Layer",
+                  ].map((c) => (
                     <span
                       key={c}
                       className="text-xs px-3 py-1 rounded-full border"
                       style={{
-                        borderColor: c === "X Layer" ? "var(--accent)" : "var(--border)",
-                        color: c === "X Layer" ? "var(--accent)" : "var(--text-muted)",
-                        background: c === "X Layer" ? "var(--accent-glow)" : "transparent",
+                        borderColor:
+                          c === "X Layer"
+                            ? "var(--accent)"
+                            : "var(--border)",
+                        color:
+                          c === "X Layer"
+                            ? "var(--accent)"
+                            : "var(--text-muted)",
                       }}
                     >
                       {c}
@@ -277,53 +272,44 @@ export default function Home() {
                     color: "var(--text-primary)",
                   }}
                 >
-                  ✨ Now supporting{" "}
-                  <span className="font-semibold" style={{ color: "var(--accent)" }}>
-                    X Layer
-                  </span>{" "}
-                  — OKX's EVM Layer 2
+                  Also supported by OKX Xlayer
                 </div>
               </div>
             )}
           </>
         )}
 
-        {/* ── PORTFOLIO TAB ── */}
-        {tab === "portfolio" && (
+        {view === "portfolio" && (
           <div className="space-y-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <BarChart3 className="w-5 h-5" style={{ color: "var(--accent)" }} />
-                <h1 className="text-2xl font-bold">Portfolio Analyzer</h1>
-                <span
-                  className="text-xs px-2 py-1 rounded-full"
-                  style={{ background: "var(--accent-glow)", color: "var(--accent)" }}
-                >
-                  Up to 10 tokens
-                </span>
-              </div>
-              <p className="text-sm" style={{ color: "var(--text-muted)" }}>
-                Analyze your entire portfolio at once — get individual risk scores, aggregate
-                metrics, and an AI portfolio assessment.
-              </p>
-            </div>
+            <h1 className="text-2xl font-bold">Portfolio Analyzer</h1>
             <PortfolioTracker />
           </div>
         )}
       </main>
 
-      {/* compare modal */}
       {compareOpen && token && (
-        <CompareMode tokenA={token} onClose={() => setCompareOpen(false)} />
+        <CompareMode
+          tokenA={token}
+          onClose={() => setCompareOpen(false)}
+        />
       )}
 
-      {/* footer — sits naturally below flex-1 main, never overlaps */}
+      <SidePanel
+        open={panelOpen}
+        onClose={() => setPanelOpen(false)}
+        token={token}
+        onOpenPortfolio={() => setView("portfolio")}
+        onOpenCompare={() => setCompareOpen(true)}
+      />
+
       <footer
         className="border-t py-6 text-center text-xs px-6"
-        style={{ borderColor: "var(--border)", color: "var(--text-muted)" }}
+        style={{
+          borderColor: "var(--border)",
+          color: "var(--text-muted)",
+        }}
       >
-        Cryptly — AI crypto risk analysis agent. Not financial advice. Data from DexScreener,
-        GoPlus Security & GeckoTerminal.
+        Cryptly — AI crypto risk analysis agent. Not financial advice.
       </footer>
     </div>
   );
