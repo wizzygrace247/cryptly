@@ -37,8 +37,15 @@ export async function runAgentCycle(): Promise<AgentCycleResult> {
     timestamp: new Date().toISOString(),
   };
 
+  // narrow supabase to local constant so TypeScript understands it's non-null
+  const db = supabase;
+  if (!db) {
+    console.error("Supabase not configured — skipping agent cycle");
+    return result;
+  }
+
   // PERCEIVE — load all watchlisted tokens from persistent store
-  const { data: watchlist, error } = await supabase
+  const { data: watchlist, error } = await db
     .from("watchlist")
     .select("*");
 
@@ -104,7 +111,7 @@ export async function runAgentCycle(): Promise<AgentCycleResult> {
         if (alerts.length > 0) {
           result.alertsEmitted += alerts.length;
 
-          await supabase.from("agent_alerts").insert(
+          await db.from("agent_alerts").insert(
             alerts.map((message) => ({
               wallet_address: entry.wallet_address,
               token_symbol: entry.symbol,
@@ -115,15 +122,15 @@ export async function runAgentCycle(): Promise<AgentCycleResult> {
                 message.startsWith("")
                   ? "danger"
                   : message.startsWith("")
-                  ? "warning"
-                  : "info",
+                    ? "warning"
+                    : "info",
               created_at: new Date().toISOString(),
             }))
           );
         }
 
         // update score in watchlist
-        await supabase
+        await db
           .from("watchlist")
           .update({ last_score: newScore })
           .match({

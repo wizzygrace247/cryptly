@@ -168,7 +168,7 @@ export default function CompareMode({ tokenA, onClose }: Props) {
 
         <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
           {/* token headers */}
-          <div className="grid grid-cols-3 gap-4 items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
             {/* token A */}
             <div
               className="rounded-xl p-4 border text-center"

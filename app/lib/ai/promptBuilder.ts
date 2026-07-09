@@ -1,36 +1,19 @@
 import type { TokenMetrics } from "~/types/tokens";
 
 export function buildAnalysisPrompt(metrics: TokenMetrics): string {
-  const timeframe = metrics.timeframe;
-  const timeframeLabel = timeframe?.label ?? "Not available";
-  const timeframeWindow = timeframe?.window ?? "Not available";
-  const timeframeSignals = timeframe?.signals?.join("; ") ?? "No signals available";
-
   return `
-Analyze this token and explain its risk profile in 4 short bullet points.
+Give a brief risk explanation for this token. Be extremely concise.
 
 Token: ${metrics.name} (${metrics.symbol})
-Chain: ${metrics.chain}
-Risk Score: ${metrics.riskScore}/100
-Price: $${metrics.price}
-24h Change: ${metrics.priceChange24h}%
-Market Cap: $${metrics.marketCap.toLocaleString()}
-Liquidity: $${metrics.liquidity.toLocaleString()}
-24h Volume: $${metrics.volume24h.toLocaleString()}
-Token Age: ${metrics.ageInDays} days
-Top 10 Holder Concentration: ${metrics.topHolderPct}%
-Contract Verified: ${metrics.verified ? "Yes" : "No"}
-Ownership Renounced: ${metrics.ownershipRenounced ? "Yes" : "No"}
-Honeypot Risk: ${metrics.honeypotFlag ? "DETECTED" : "None"}
-Buy/Sell Tax: ${metrics.buyTax}% / ${metrics.sellTax}%
+Risk Score: ${metrics.riskScore}/100 (${metrics.riskLabel})
+Liquidity: $${metrics.liquidity.toLocaleString()} | Age: ${metrics.ageInDays}d
+Top 10 Holders: ${metrics.topHolderPct}% | Verified: ${metrics.verified ? "Yes" : "No"}
+Honeypot: ${metrics.honeypotFlag ? "YES" : "No"} | Sell Tax: ${metrics.sellTax}%
 
-Behavioral Pattern Classification: ${timeframeLabel} (${timeframeWindow})
-Pattern signals: ${timeframeSignals}
-
-Give 4 bullet points explaining what's driving the risk score. Reference the behavioral pattern classification and briefly explain why that holding-horizon pattern fits the data — but make clear this reflects historical/current pattern-reading, not a forecast or promise of returns. End with one line on what additional data would improve confidence.
+Give exactly 2 short bullet points (max 15 words each) on what's driving this score.
+No intro, no closing line, no disclaimers — just the 2 bullets.
   `.trim();
 }
-
 export function buildComparePrompt(
   a: TokenMetrics,
   b: TokenMetrics

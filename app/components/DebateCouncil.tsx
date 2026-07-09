@@ -254,31 +254,64 @@ export default function DebateCouncil({ token }: Props) {
         <AgentPanel agentKey="security" text={texts.security} status={status.security} />
       </div>
 
-      {status.judge !== "idle" && (
-        <div
-          className="rounded-md border-2 p-4"
-          style={{ borderColor: "var(--accent)", background: "var(--accent-glow)" }}
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <Gavel className="w-4 h-4" style={{ color: "var(--accent)" }} />
-            <h4 className="text-sm font-bold" style={{ color: "var(--accent)" }}>
-              Final Verdict
-            </h4>
-            {status.judge === "running" && (
-              <Loader2 className="w-3 h-3 animate-spin ml-auto" style={{ color: "var(--accent)" }} />
-            )}
-          </div>
-          <p
-            className="text-sm leading-relaxed whitespace-pre-wrap font-data"
-            style={{ color: "var(--text-primary)" }}
+ {status.judge !== "idle" && (() => {
+  const verdictMatch = texts.judge.match(/VERDICT:\s*(BULLISH|BEARISH)/i);
+  const verdict = verdictMatch ? verdictMatch[1].toUpperCase() : null;
+  const isBullish = verdict === "BULLISH";
+  const verdictColor = verdict
+    ? isBullish
+      ? "var(--green)"
+      : "var(--red)"
+    : "var(--accent)";
+  const verdictGlow = verdict
+    ? isBullish
+      ? "var(--green-glow)"
+      : "var(--red-glow)"
+    : "var(--accent-glow)";
+
+  return (
+    <div
+      className="rounded-md border-2 p-4"
+      style={{ borderColor: verdictColor, background: verdictGlow }}
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <Gavel className="w-4 h-4" style={{ color: verdictColor }} />
+        <h4 className="text-sm font-bold" style={{ color: verdictColor }}>
+          Final Verdict
+        </h4>
+        {status.judge === "running" && (
+          <Loader2 className="w-3 h-3 animate-spin ml-auto" style={{ color: verdictColor }} />
+        )}
+      </div>
+
+      {verdict && (
+        <div className="flex items-center gap-2 mb-3">
+          {isBullish ? (
+            <TrendingUp className="w-6 h-6" style={{ color: verdictColor }} />
+          ) : (
+            <TrendingDown className="w-6 h-6" style={{ color: verdictColor }} />
+          )}
+          <span
+            className="text-2xl font-bold tracking-wide"
+            style={{ color: verdictColor, fontFamily: "var(--font-mono)" }}
           >
-            {texts.judge}
-            {status.judge === "running" && (
-              <span className="animate-pulse" style={{ color: "var(--accent)" }}>▊</span>
-            )}
-          </p>
+            {verdict}
+          </span>
         </div>
       )}
+
+      <p
+        className="text-sm leading-relaxed whitespace-pre-wrap"
+        style={{ color: "var(--text-primary)" }}
+      >
+        {texts.judge.replace(/VERDICT:\s*(BULLISH|BEARISH)/i, "").trim()}
+        {status.judge === "running" && (
+          <span className="animate-pulse" style={{ color: verdictColor }}>▊</span>
+        )}
+      </p>
+    </div>
+  );
+})()}
     </div>
   );
 }

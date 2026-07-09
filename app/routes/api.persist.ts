@@ -1,6 +1,9 @@
 import { supabase } from "~/lib/db/supabase";
 
 export async function action({ request }: { request: Request }) {
+    if (!supabase) {
+    return new Response("Database not configured", { status: 503 });
+  }
   const body = await request.json();
   const { op, walletAddress } = body;
 

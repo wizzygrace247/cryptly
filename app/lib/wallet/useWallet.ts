@@ -8,6 +8,15 @@ interface WalletState {
   error: string;
 }
 
+function isMobileDevice(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
+
+function hasInjectedWallet(): boolean {
+  return typeof window !== "undefined" && !!(window as any).ethereum;
+}
+
 export function useWallet() {
   const [state, setState] = useState<WalletState>({
     address: null,
@@ -17,16 +26,28 @@ export function useWallet() {
   });
 
   const { setWallet } = useWatchlistStore();
+  const isMobile = isMobileDevice();
+  const needsMobileRedirect = isMobile && !hasInjectedWallet();
 
   const connect = useCallback(async () => {
     const eth = (window as any).ethereum;
+
     if (!eth) {
+      if (isMobileDevice()) {
+        // deep link into MetaMask's built-in browser — window.ethereum
+        // will be injected once the page reloads inside the app
+        const hostAndPath =
+          window.location.host + window.location.pathname + window.location.search;
+        window.location.href = `https://metamask.app.link/dapp/${hostAndPath}`;
+        return;
+      }
       setState((s) => ({
         ...s,
         error: "No wallet found. Install MetaMask or a compatible EVM wallet.",
       }));
       return;
     }
+
     setState((s) => ({ ...s, connecting: true, error: "" }));
     try {
       const accounts: string[] = await eth.request({
@@ -39,7 +60,6 @@ export function useWallet() {
         connecting: false,
         error: "",
       });
-      // sync store — loads watchlist + alerts from Supabase
       await setWallet(accounts[0]);
     } catch (err: any) {
       setState((s) => ({
@@ -55,7 +75,6 @@ export function useWallet() {
     setWallet(null);
   }, [setWallet]);
 
-  // listen for account changes
   useEffect(() => {
     const eth = (window as any).ethereum;
     if (!eth) return;
@@ -70,5 +89,5 @@ export function useWallet() {
     return () => eth.removeListener?.("accountsChanged", handleAccountsChanged);
   }, [disconnect, setWallet]);
 
-  return { ...state, connect, disconnect };
+  return { ...state, connect, disconnect, needsMobileRedirect };
 }

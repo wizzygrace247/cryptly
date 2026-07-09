@@ -1,94 +1,78 @@
 import type { TokenMetrics } from "~/types/tokens";
 
 function dataBlock(m: TokenMetrics): string {
-    return `
-Token: ${m.name} (${m.symbol}) on ${m.chain}
-Price: $${m.price} | 24h Change: ${m.priceChange24h}%
-Market Cap: $${m.marketCap.toLocaleString()}
+  return `
+${m.name} (${m.symbol}) on ${m.chain} | Score: ${m.riskScore}/100
+Price: $${m.price} (${m.priceChange24h}% 24h) | MCap: $${m.marketCap.toLocaleString()}
 Liquidity: $${m.liquidity.toLocaleString()} (${((m.liquidityRatio ?? 0) * 100).toFixed(1)}% of mcap)
-24h Volume: $${m.volume24h.toLocaleString()}
-Token Age: ${m.ageInDays} days
-Top 10 Holder Concentration: ${m.topHolderPct}%
-Contract Verified: ${m.verified ? "Yes" : "No"}
-Ownership Renounced: ${m.ownershipRenounced ? "Yes" : "No"}
-Honeypot Risk: ${m.honeypotFlag ? "DETECTED" : "None"}
-Buy/Sell Tax: ${m.buyTax}% / ${m.sellTax}%
-Deterministic Risk Score: ${m.riskScore}/100 (${m.riskLabel})
-Behavioral Pattern: ${m.timeframe?.label ?? "Unknown"} (${m.timeframe?.window ?? "—"})
+Age: ${m.ageInDays}d | Top10 Holders: ${m.topHolderPct}%
+Verified: ${m.verified ? "Yes" : "No"} | Renounced: ${m.ownershipRenounced ? "Yes" : "No"}
+Honeypot: ${m.honeypotFlag ? "YES" : "No"} | Tax: ${m.buyTax}%/${m.sellTax}%
+Pattern: ${m.timeframe?.label ?? "Unknown"}
   `.trim();
 }
 
 function newsBlock(newsContext?: string): string {
-    if (!newsContext) return "";
-    return `\nRECENT NEWS & MARKET SENTIMENT:\n${newsContext}\n`;
+  if (!newsContext) return "";
+  return `\nNews: ${newsContext}\n`;
 }
 
 export function buildBullPrompt(m: TokenMetrics, newsContext?: string): string {
-    return `
-You are the BULL AGENT in a risk debate council. Build the strongest honest case
-for why this token could be an opportunity — using the data and news below, no
-invented facts. If neither supports a bull case, say so plainly.
+  return `
+BULL AGENT. Make the strongest honest case FOR this token. Use only real data/news below.
 
 ${dataBlock(m)}
 ${newsBlock(newsContext)}
-Give exactly 2 bullet points making the bull case. Ground every point in a specific
-number OR a specific fact from the news. If news mentions a burn, partnership, or
-listing, treat that as a real reason to consider buying and cite it directly.
+Exactly 2 bullet points, max 15 words each. No intro, no closing line.
   `.trim();
 }
 
 export function buildBearPrompt(m: TokenMetrics, newsContext?: string): string {
-    return `
-You are the BEAR AGENT in a risk debate council. Build the strongest honest case
-for why this token is risky or should be avoided — using the data and news below.
+  return `
+BEAR AGENT. Make the strongest honest case AGAINST this token. Use only real data/news below.
 
 ${dataBlock(m)}
 ${newsBlock(newsContext)}
-Give exactly 2 bullet points making the bear case. Ground every point in a specific
-number OR a specific fact from the news. If news mentions a hack, delisting, or
-negative sentiment, treat that as a real red flag and cite it directly.
+Exactly 2 bullet points, max 15 words each. No intro, no closing line.
   `.trim();
 }
 
 export function buildSecurityPrompt(m: TokenMetrics): string {
-    return `
-You are the SECURITY AGENT in a risk debate council. Ignore price, news, and market
-narrative entirely — your only job is contract and holder-level security analysis.
+  return `
+SECURITY AGENT. Contract/holder security only — ignore price and news.
 
 ${dataBlock(m)}
 
-Give exactly 2 bullet points on contract/holder security specifically
-(verification, ownership, honeypot, tax, concentration). Flag anything concerning by name.
+Exactly 2 bullet points, max 15 words each, naming the specific concern. No intro, no closing line.
   `.trim();
 }
 
 export function buildJudgePrompt(
-    m: TokenMetrics,
-    bullCase: string,
-    bearCase: string,
-    securityCase: string,
-    newsContext?: string
+  m: TokenMetrics,
+  bullCase: string,
+  bearCase: string,
+  securityCase: string,
+  newsContext?: string
 ): string {
-    return `
-You are the JUDGE AGENT in a risk debate council. Three other agents submitted
-their analysis. Weigh their arguments and give a final verdict.
+  return `
+JUDGE AGENT. Weigh the three arguments below and commit to ONE definitive side.
 
 ${dataBlock(m)}
 ${newsBlock(newsContext)}
-BULL AGENT CASE:
+BULL CASE:
 ${bullCase}
 
-BEAR AGENT CASE:
+BEAR CASE:
 ${bearCase}
 
-SECURITY AGENT CASE:
+SECURITY CASE:
 ${securityCase}
 
-Respond in exactly this format:
-VERDICT: [Favorable / Cautious / Avoid]
-CONFIDENCE: [Low / Medium / High]
-REASONING: 1-2 sentences explaining which argument(s) were most decisive — including
-whether news/sentiment changed the picture — and why.
-This is analysis, not financial advice.
+You MUST pick exactly one side — BULLISH or BEARISH. Never say neutral, moderate,
+mixed, or "it depends". Weigh which side's case is stronger given the data and commit fully.
+
+Respond in exactly this format, nothing else:
+VERDICT: BULLISH or BEARISH
+REASON: one sentence, max 20 words, citing the single most decisive factor.
   `.trim();
 }

@@ -52,79 +52,98 @@ export default function Home() {
     <div className="min-h-screen flex flex-col">
       {/* minimal navbar */}
       <nav
-        className="flex items-center gap-3 px-4 sm:px-6 py-3 border-b sticky top-0 z-30"
+  className="sticky top-0 z-30"
+  style={{
+    background: "rgba(20, 22, 20, 0.92)",
+    backdropFilter: "blur(10px)",
+    borderBottom: "1px solid var(--border)",
+    boxShadow: "0 4px 24px -12px rgba(0,0,0,0.6)",
+  }}
+>
+  <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-2.5 sm:py-3">
+    <button
+      onClick={() => setView("analyze")}
+      className="flex items-center gap-2.5 flex-shrink-0"
+    >
+      <div
+        className="scan-corners w-9 h-9 rounded-md flex items-center justify-center font-bold text-sm flex-shrink-0"
         style={{
-          borderColor: "var(--border)",
+          background: "linear-gradient(135deg, var(--accent) 0%, #cc8b00 100%)",
+          color: "#0A0B0A",
+          boxShadow: "0 0 20px -4px var(--accent-dim)",
+        }}
+      >
+        C
+      </div>
+      <div className="hidden sm:flex flex-col items-start leading-none">
+        <span
+          className="font-bold text-lg tracking-tight"
+          style={{ color: "var(--text-primary)" }}
+        >
+          Cryptly
+        </span>
+        <span
+          className="flex items-center gap-1 text-[10px] font-medium tracking-widest uppercase mt-0.5"
+          style={{ color: "var(--green)", fontFamily: "var(--font-mono)" }}
+        >
+          <span
+            className="pulse-live w-1.5 h-1.5 rounded-full"
+            style={{ background: "var(--green)" }}
+          />
+          Agent Active
+        </span>
+      </div>
+    </button>
+
+    {view === "analyze" && (
+      <div className="hidden sm:block flex-1 min-w-0 max-w-xl">
+        <TokenSearch onResult={handleResult} />
+      </div>
+    )}
+    {view === "portfolio" && <div className="hidden sm:block flex-1" />}
+
+    <div className="flex items-center gap-2 flex-shrink-0">
+      {address && (
+        <span
+          className="hidden md:flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full border font-data"
+          style={{
+            borderColor: "var(--green)",
+            color: "var(--green)",
+            background: "var(--green-glow)",
+          }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--green)" }} />
+          {address.slice(0, 6)}...{address.slice(-4)}
+        </span>
+      )}
+
+      <button
+        onClick={() => setPanelOpen(true)}
+        className="relative p-2.5 rounded-md border"
+        style={{
+          borderColor: alerts.length > 0 ? "var(--red)" : "var(--border)",
           background: "var(--bg-card)",
         }}
       >
-        <button
-          onClick={() => setView("analyze")}
-          className="flex items-center gap-2 flex-shrink-0"
-        >
-          <div
-            className="w-8 h-8 rounded-md flex items-center justify-center font-bold text-sm"
-            style={{ background: "var(--accent)", color: "#0A0B0A" }}
-          >
-            C
-          </div>
+        <Menu className="w-5 h-5" style={{ color: "var(--text-primary)" }} />
+        {alerts.length > 0 && (
           <span
-            className="hidden sm:inline font-bold text-lg tracking-tight"
-            style={{ color: "var(--text-primary)" }}
+            className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 min-w-[18px] px-1 rounded-full text-[10px] font-bold flex items-center justify-center"
+            style={{ background: "var(--red)", color: "white" }}
           >
-            Cryptly
+            {alerts.length}
           </span>
-        </button>
-
-        {view === "analyze" && (
-          <div className="flex-1 min-w-0">
-            <TokenSearch onResult={handleResult} />
-          </div>
         )}
-        {view === "portfolio" && <div className="flex-1" />}
+      </button>
+    </div>
+  </div>
 
-        {/* wallet status indicator + panel trigger */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {address && (
-            <span
-              className="hidden sm:flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border"
-              style={{
-                borderColor: "var(--green)",
-                color: "var(--green)",
-                background: "var(--green-glow)",
-              }}
-            >
-              <span
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: "var(--green)" }}
-              />
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </span>
-          )}
-
-          <button
-            onClick={() => setPanelOpen(true)}
-            className="relative p-2 rounded-md border"
-            style={{
-              borderColor: "var(--border)",
-              background: "var(--bg-primary)",
-            }}
-          >
-            <Menu
-              className="w-5 h-5"
-              style={{ color: "var(--text-primary)" }}
-            />
-            {alerts.length > 0 && (
-              <span
-                className="absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs font-bold flex items-center justify-center"
-                style={{ background: "var(--red)", color: "white" }}
-              >
-                {alerts.length}
-              </span>
-            )}
-          </button>
-        </div>
-      </nav>
+  {view === "analyze" && (
+    <div className="sm:hidden px-4 pb-3">
+      <TokenSearch onResult={handleResult} />
+    </div>
+  )}
+</nav>
 
       {/* main content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6">
@@ -217,9 +236,9 @@ export default function Home() {
               </div>
             ) : (
               /* empty state */
-              <div className="flex flex-col items-center justify-center py-24 sm:py-32 gap-5 text-center">
+             <div className="flex flex-col items-center justify-center py-12 sm:py-32 gap-4 sm:gap-5 text-center px-2">
                 <div
-                  className="w-20 h-20 rounded-2xl flex items-center justify-center font-bold text-3xl"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl flex items-center justify-center font-bold text-2xl sm:text-3xl"
                   style={{ background: "var(--accent)", color: "#0A0B0A" }}
                 >
                   C

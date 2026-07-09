@@ -1,110 +1,61 @@
 @import "tailwindcss";
 
-:root {
-  /* font variables moved here for broader compatibility */
+@theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, monospace;
-  --bg-primary: #070708;
-  --bg-image: url('/wireframe-bg.jpg');
-  --bg-card: rgba(20, 22, 21, 0.7);
-  --bg-card-hover: rgba(28, 30, 29, 0.75);
-  --border: rgba(90, 98, 104, 0.18);
-  --border-bright: rgba(110, 120, 130, 0.28);
+}
 
-  --accent: #9be7ff;
-  --accent-glow: rgba(155, 231, 255, 0.08);
-  --accent-dim: rgba(155, 231, 255, 0.55);
+:root {
+  --bg-primary: #0a0b0a;
+  --bg-card: #141614;
+  --bg-card-solid: #141614;
+  --bg-card-hover: #191c19;
+  --bg-panel: #121412;
 
-  --text-primary: #e7e8e9;
-  --text-muted: #9aa3a7;
+  --border: #262f29;
+  --border-bright: #3a4a42;
 
-  --green: #5ef2b3;
-  --green-glow: rgba(94, 242, 179, 0.08);
-  --red: #ff6b6b;
-  --red-glow: rgba(255, 107, 107, 0.08);
-  --orange: #ff9b6b;
-  --yellow: #ffd85a;
+  --accent: #ffb000;
+  --accent-2: #ffd166;
+  --accent-glow: rgba(255, 176, 0, 0.12);
+  --accent-dim: rgba(255, 176, 0, 0.55);
+
+  --text-primary: #eeece6;
+  --text-muted: #7a847c;
+
+  --green: #00d66f;
+  --green-glow: rgba(0, 214, 111, 0.12);
+  --red: #ff3b3b;
+  --red-glow: rgba(255, 59, 59, 0.12);
+  --orange: #ff8a3d;
+  --yellow: #ffd600;
 }
 
 html,
 body {
   background-color: var(--bg-primary);
-  background-image: linear-gradient(
+  background-image: linear-gradient(rgba(255, 176, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 176, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(
       180deg,
       rgba(10, 11, 10, 0.88) 0%,
-      rgba(10, 11, 10, 0.96) 50%,
+      rgba(10, 11, 10, 0.97) 45%,
       rgba(10, 11, 10, 1) 100%
     ),
     url("/background.jpg");
-  background-size: cover;
-  background-position: center top;
-  background-attachment: fixed;
-  background-repeat: no-repeat;
+  background-size: 40px 40px, 40px 40px, cover, cover;
+  background-position: 0 0, 0 0, center top, center top;
+  background-attachment: fixed, fixed, fixed, fixed;
+  background-repeat: repeat, repeat, no-repeat, no-repeat;
   color: var(--text-primary);
   min-height: 100vh;
   font-family: var(--font-sans);
 }
 
-/* subtle vignette + desaturate overlay for readability */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0) 40%, rgba(0, 0, 0, 0.5) 100%);
-  mix-blend-mode: multiply;
+* {
+  scrollbar-color: var(--border) transparent;
 }
 
-/* Common card utility */
-.card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-}
-.card:hover {
-  background: var(--bg-card-hover);
-}
-
-/* Accent button */
-.btn-accent {
-  background: linear-gradient(90deg, rgba(155,231,255,0.12), rgba(155,231,255,0.04));
-  color: var(--text-primary);
-  border: 1px solid rgba(155,231,255,0.16);
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-}
-.btn-accent:hover {
-  box-shadow: 0 6px 20px var(--accent-glow);
-}
-
-/* Form elements */
-input[type="text"],
-input[type="search"],
-select,
-textarea {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.04);
-  color: var(--text-primary);
-  padding: 0.5rem 0.6rem;
-  border-radius: 8px;
-}
-input::placeholder,
-textarea::placeholder {
-  color: var(--text-muted);
-}
-
-/* Links */
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-
-/* numbers and data feel like terminal readouts */
 .font-data {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -113,32 +64,56 @@ a:hover {
 ::-webkit-scrollbar {
   width: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--bg-primary);
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: var(--border);
   border-radius: 3px;
 }
 
-/* scan-line sweep — the signature motion */
+/* ---------- premium card treatment ---------- */
+.glow-card {
+  position: relative;
+  background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-panel) 100%);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.7),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+}
+.glow-card:hover {
+  border-color: var(--border-bright);
+}
+.glow-card-active {
+  border-color: var(--accent-dim);
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.7), 0 0 32px -12px var(--accent-glow);
+}
+
+/* ---------- opaque overlay panels (fixes see-through) ---------- */
+.solid-panel {
+  background-color: var(--bg-panel);
+  background-image: linear-gradient(180deg, rgba(255, 176, 0, 0.03) 0%, transparent 200px);
+  backdrop-filter: none;
+}
+
+.overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(3px);
+}
+
+/* ---------- scan-line sweep ---------- */
 @keyframes scan-sweep {
   0% {
     transform: translateX(-100%);
   }
-
   100% {
     transform: translateX(100%);
   }
 }
-
 .scan-line {
   position: relative;
   overflow: hidden;
 }
-
 .scan-line::after {
   content: "";
   position: absolute;
@@ -146,20 +121,21 @@ a:hover {
   left: 0;
   width: 40%;
   height: 100%;
-  background: linear-gradient(90deg,
-      transparent,
-      var(--accent-glow) 40%,
-      var(--accent-dim) 50%,
-      var(--accent-glow) 60%,
-      transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--accent-glow) 40%,
+    var(--accent-dim) 50%,
+    var(--accent-glow) 60%,
+    transparent
+  );
   animation: scan-sweep 1.8s ease-in-out infinite;
 }
 
-/* corner brackets — targeting reticle motif */
+/* ---------- corner brackets ---------- */
 .scan-corners {
   position: relative;
 }
-
 .scan-corners::before,
 .scan-corners::after {
   content: "";
@@ -167,19 +143,41 @@ a:hover {
   width: 10px;
   height: 10px;
   border-color: var(--accent);
-  opacity: 0.5;
+  opacity: 0.55;
 }
-
 .scan-corners::before {
   top: -1px;
   left: -1px;
   border-top: 2px solid;
   border-left: 2px solid;
 }
-
 .scan-corners::after {
   bottom: -1px;
   right: -1px;
   border-bottom: 2px solid;
   border-right: 2px solid;
+}
+
+/* ---------- live agent pulse ---------- */
+@keyframes pulse-live {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.85);
+  }
+}
+.pulse-live {
+  animation: pulse-live 1.8s ease-in-out infinite;
+}
+
+/* ---------- buttons ---------- */
+button {
+  transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+button:active:not(:disabled) {
+  transform: scale(0.97);
 }

@@ -363,7 +363,7 @@ export default function PortfolioTracker() {
             <h3 className="font-semibold text-sm mb-6">
               Portfolio Risk Score
             </h3>
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="flex flex-col items-center gap-3">
                 <ScoreRing
                   score={result.scores.average}

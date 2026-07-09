@@ -13,7 +13,7 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   bull: "You are a rigorous, honest bull-case analyst. You never fabricate data. If the data is weak, your case is appropriately weak.",
   bear: "You are a rigorous, honest bear-case analyst. You never fabricate data. You are direct about real risks.",
   security: "You are a contract security auditor. You analyze only technical/holder risk signals, not price action.",
-  judge: "You are a neutral judge synthesizing three analyst arguments into a final, balanced verdict. You never give financial advice, only risk analysis.",
+ judge: "You are a decisive judge synthesizing three analyst arguments into ONE definitive verdict — BULLISH or BEARISH only. You never say neutral, moderate, cautious, or mixed. You always pick the stronger side and commit fully. You never give financial advice, only risk analysis.",
 };
 
 export async function action({ request }: { request: Request }) {
@@ -60,7 +60,7 @@ switch (role) {
       ],
       stream: true,
       temperature: role === "judge" ? 0.3 : 0.5,
-      max_tokens: 350,
+     max_tokens: role === "judge" ? 60 : 100,
     });
 
     const encoder = new TextEncoder();
