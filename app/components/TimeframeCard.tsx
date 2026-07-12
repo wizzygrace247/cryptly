@@ -17,7 +17,6 @@ export default function TimeframeCard({ timeframe }: Props) {
 
   return (
     <div
-      className="rounded-2xl border p-5 shadow-sm"
       className="rounded-md p-3 border card"
     >
       <div className="mb-4 flex items-start justify-between gap-3">
